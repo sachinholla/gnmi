@@ -38,14 +38,14 @@ import (
 	"unicode/utf8"
 
 	"flag"
-	
+
 	log "github.com/golang/glog"
 	"github.com/golang/protobuf/proto"
-	"golang.org/x/crypto/ssh/terminal"
 	"github.com/openconfig/gnmi/cli"
 	"github.com/openconfig/gnmi/client"
 	"github.com/openconfig/gnmi/client/flags"
 	gclient "github.com/openconfig/gnmi/client/gnmi"
+	"golang.org/x/crypto/ssh/terminal"
 
 	gpb "github.com/openconfig/gnmi/proto/gnmi"
 )
@@ -71,6 +71,8 @@ var (
 	setFlag          = flag.Bool("set", false, `When set, CLI will perform a Set request. Usage: gnmi_cli -set -proto <gnmi.SetRequest> -address <address> [other flags ...]`)
 
 	withUserPass = flag.Bool("with_user_pass", false, "When set, CLI will prompt for username/password to use when connecting to a target.")
+	username     = flag.String("username", "", "If specified, uses username/password credentials.")
+	password     = flag.String("password", "", "The password matching the provided username.")
 
 	// Certificate files.
 	caCert     = flag.String("ca_crt", "", "CA certificate file. Used to verify server TLS certificate.")
@@ -144,6 +146,8 @@ func main() {
 		if err != nil {
 			log.Exit(err)
 		}
+	} else if len(*username) != 0 && len(*password) != 0 {
+		q.Credentials = &client.Credentials{Username: *username, Password: *password}
 	}
 
 	if *caCert != "" {
